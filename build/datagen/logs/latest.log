@@ -1,0 +1,65 @@
+[15:35:06] [main/WARN] (FabricLoader/Knot) Class path entries reference missing files: /home/matt/IdeaProjects/matt_mods/build/classes/java/client, /home/matt/IdeaProjects/matt_mods/build/classes/java/main - the game may not load properly!
+[15:35:06] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 1.21.8 with Fabric Loader 0.17.3
+[15:35:06] [main/INFO] (FabricLoader) Loading 51 mods:
+	- fabric-api 0.134.0+1.21.8
+	- fabric-api-base 0.5.0+cd8c0daa2c
+	- fabric-api-lookup-api-v1 1.6.101+946bf4c32c
+	- fabric-biome-api-v1 16.1.0+c21d71cc2c
+	- fabric-block-api-v1 1.1.3+946bf4c32c
+	- fabric-block-view-api-v2 1.0.31+946bf4c32c
+	- fabric-client-gametest-api-v1 4.2.5+8a98c3fc2c
+	- fabric-command-api-v2 2.3.1+52fff9ec2c
+	- fabric-content-registries-v0 10.1.0+c75de69d2c
+	- fabric-convention-tags-v1 2.1.41+7f945d5b2c
+	- fabric-convention-tags-v2 2.15.6+eb5df52f2c
+	- fabric-crash-report-info-v1 0.3.15+946bf4c32c
+	- fabric-data-attachment-api-v1 1.8.13+38b5f74e2c
+	- fabric-data-generation-api-v1 23.2.7+2e1c6d322c
+	- fabric-dimensions-v1 4.0.20+948fc79a2c
+	- fabric-entity-events-v1 2.1.2+c9e472732c
+	- fabric-events-interaction-v0 4.0.25+946bf4c32c
+	- fabric-game-rule-api-v1 1.0.73+c64c9c5b2c
+	- fabric-gametest-api-v1 3.1.10+39ce47f52c
+	- fabric-item-api-v1 11.5.0+02ce13f42c
+	- fabric-item-group-api-v1 4.2.14+c5f9bbc12c
+	- fabric-key-binding-api-v1 1.0.65+946bf4c32c
+	- fabric-language-kotlin 1.13.6+kotlin.2.2.20
+	- fabric-lifecycle-events-v1 2.6.4+db4dfd852c
+	- fabric-loot-api-v2 3.0.56+3f89f5a52c
+	- fabric-loot-api-v3 2.0.3+946bf4c32c
+	- fabric-message-api-v1 6.1.2+946bf4c32c
+	- fabric-model-loading-api-v1 5.2.7+946bf4c32c
+	- fabric-networking-api-v1 5.0.3+4ddbf91b2c
+	- fabric-object-builder-api-v1 21.1.9+946bf4c32c
+	- fabric-particles-v1 4.1.9+946bf4c32c
+	- fabric-recipe-api-v1 8.1.16+946bf4c32c
+	- fabric-registry-sync-v0 6.1.29+946bf4c32c
+	- fabric-renderer-api-v1 7.0.4+208eed172c
+	- fabric-renderer-indigo 4.0.4+946bf4c32c
+	- fabric-rendering-fluids-v1 3.1.31+fa6cb72b2c
+	- fabric-rendering-v1 12.5.1+fbe231d52c
+	- fabric-resource-conditions-api-v1 5.0.25+98e6d6db2c
+	- fabric-resource-loader-v0 3.1.12+020423442c
+	- fabric-screen-api-v1 2.2.0+e0cb65d02c
+	- fabric-screen-handler-api-v1 1.3.138+946bf4c32c
+	- fabric-serialization-api-v1 1.0.0+fc0e5aba2c
+	- fabric-sound-api-v1 1.0.42+946bf4c32c
+	- fabric-tag-api-v1 1.2.2+946bf4c32c
+	- fabric-transfer-api-v1 6.0.6+946bf4c32c
+	- fabric-transitive-access-wideners-v1 6.5.0+c847ce762c
+	- fabricloader 0.17.3
+	- java 25
+	- matt_mods 1.0-SNAPSHOT
+	- minecraft 1.21.8
+	- mixinextras 0.5.0
+[15:35:06] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/matt/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.16.5+mixin.0.8.7/80fc3a9f592673cea87f4cd702f87991c6c9fe4d/sponge-mixin-0.16.5+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[15:35:06] [main/INFO] (FabricLoader/Mixin) Loaded Fabric development mappings for mixin remapper!
+[15:35:06] [main/INFO] (FabricLoader/Mixin) Compatibility level set to JAVA_21
+[15:35:07] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.0).
+[15:35:07] [Datafixer Bootstrap/INFO] (Minecraft) 269 Datafixer optimizations took 203 milliseconds
+[15:35:10] [Render thread/INFO] (Minecraft) Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[15:35:10] [Render thread/INFO] (Minecraft) Setting user: Player995
+[15:35:10] [Render thread/INFO] (Indigo) [Indigo] Registering Indigo renderer!
+[15:35:10] [Render thread/INFO] (FabricDataGenHelper) Running data generator for matt_mods
+[15:35:10] [Render thread/INFO] (Minecraft) All providers took: 0 ms
+[15:35:10] [Render thread/INFO] (Minecraft) Caching: total files: 0, old count: 0, new count: 1, removed stale: 0, written: 0

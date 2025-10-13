@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "matt_mods",
+  "version": "${version}",
+  "name": "matt_mods",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/matt_mods/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "org.mattlawliet.matt_mods.client.Matt_modsDataGenerator"
+    ],
+    "client": [
+      "org.mattlawliet.matt_mods.client.Matt_modsClient"
+    ],
+    "main": [
+      "org.mattlawliet.matt_mods.Matt_mods"
+    ]
+  },
+  "mixins": [
+    "matt_mods.mixins.json",
+    {
+      "config": "matt_mods.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-language-kotlin": ">=${kotlin_loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

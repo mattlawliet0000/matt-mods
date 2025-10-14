@@ -167,6 +167,7 @@ class Matt_mods : ModInitializer {
             // Death backup command
             dispatcher.register(
                 CommandManager.literal("deathbackup")
+                    .requires { source -> source.hasPermissionLevel(2) }
                     .executes { ctx ->
                         ctx.source.sendFeedback({
                             Text.of(
@@ -204,6 +205,7 @@ class Matt_mods : ModInitializer {
                     )
                     .then(CommandManager.literal("load")
                         .then(CommandManager.argument("index", IntegerArgumentType.integer(0))
+
                             .executes { ctx ->
                                 val player = ctx.source.playerOrThrow
                                 val index = IntegerArgumentType.getInteger(ctx, "index")

@@ -50,6 +50,7 @@ repositories {
     maven { url = uri("https://maven.terraformersmc.com/") }
     maven { url = uri("https://maven.nucleoid.xyz") }
     maven { url = uri("https://maven.ladysnake.org/releases") }
+    maven("https://maven.nucleoid.xyz") { name = "Nucleoid" }
 }
 
 dependencies {
@@ -62,6 +63,8 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
 
     modImplementation("eu.pb4.polyport:trinkets:${project.property("trinkets_version")}")
+    //modImplementation("dev.emi:trinkets:3.10.0")
+    modImplementation("eu.pb4:polymer-bundled:0.13.13+1.21.8")
 }
 
 tasks.processResources {

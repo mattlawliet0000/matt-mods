@@ -11,5 +11,305 @@
     },
     "done": false
   },
+  "minecraft:recipes/misc/charcoal": {
+    "criteria": {
+      "has_log": "2025-10-13 04:17:08 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/oak_planks": {
+    "criteria": {
+      "has_logs": "2025-10-13 04:17:08 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/red_sandstone_stairs": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/chiseled_red_sandstone_from_red_sandstone_stonecutting": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/smooth_red_sandstone": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/chiseled_red_sandstone": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/red_sandstone_slab_from_red_sandstone_stonecutting": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/cut_red_sandstone_slab_from_red_sandstone_stonecutting": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/cut_red_sandstone": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/red_sandstone_wall_from_red_sandstone_stonecutting": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/cut_red_sandstone_from_red_sandstone_stonecutting": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/red_sandstone_slab": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/red_sandstone_stairs_from_red_sandstone_stonecutting": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/red_sandstone_wall": {
+    "criteria": {
+      "has_red_sandstone": "2025-10-13 04:17:15 -0500"
+    },
+    "done": true
+  },
+  "minecraft:story/obtain_armor": {
+    "criteria": {
+      "iron_leggings": "2025-10-13 04:18:04 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/iron_nugget_from_smelting": {
+    "criteria": {
+      "has_iron_leggings": "2025-10-13 04:18:04 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/iron_nugget_from_blasting": {
+    "criteria": {
+      "has_iron_leggings": "2025-10-13 04:18:04 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/gold_nugget_from_smelting": {
+    "criteria": {
+      "has_golden_boots": "2025-10-13 04:18:07 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/gold_nugget_from_blasting": {
+    "criteria": {
+      "has_golden_boots": "2025-10-13 04:18:07 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/mangrove_boat": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/acacia_boat": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/cherry_boat": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/pale_oak_boat": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/bamboo_raft": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/spruce_boat": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/birch_boat": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/oak_boat": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/jungle_boat": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/transportation/dark_oak_boat": {
+    "criteria": {
+      "in_water": "2025-10-13 04:19:21 -0500"
+    },
+    "done": true
+  },
+  "minecraft:story/lava_bucket": {
+    "criteria": {
+      "lava_bucket": "2025-10-13 04:19:50 -0500"
+    },
+    "done": true
+  },
+  "minecraft:adventure/root": {
+    "criteria": {
+      "killed_by_something": "2025-10-13 04:23:18 -0500"
+    },
+    "done": true
+  },
+  "minecraft:adventure/kill_all_mobs": {
+    "criteria": {
+      "minecraft:zombie": "2025-10-13 04:47:54 -0500"
+    },
+    "done": false
+  },
+  "minecraft:adventure/kill_a_mob": {
+    "criteria": {
+      "minecraft:zombie": "2025-10-13 04:47:54 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/jungle_wood": {
+    "criteria": {
+      "has_log": "2025-10-13 05:05:43 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/jungle_planks": {
+    "criteria": {
+      "has_logs": "2025-10-13 05:05:43 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/jungle_hanging_sign": {
+    "criteria": {
+      "has_stripped_logs": "2025-10-13 05:05:45 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/stripped_jungle_wood": {
+    "criteria": {
+      "has_log": "2025-10-13 05:05:45 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/redstone/jungle_trapdoor": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/jungle_sign": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/redstone/jungle_door": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/stick": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/jungle_fence": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/redstone/jungle_pressure_plate": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/barrel": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/redstone/jungle_button": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/jungle_slab": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/jungle_stairs": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/redstone/jungle_fence_gate": {
+    "criteria": {
+      "has_planks": "2025-10-13 05:05:46 -0500"
+    },
+    "done": true
+  },
+  "minecraft:adventure/sleep_in_bed": {
+    "criteria": {
+      "slept_in_bed": "2025-10-13 18:17:07 -0500"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/chest": {
+    "criteria": {
+      "has_lots_of_items": "2025-10-13 18:39:37 -0500"
+    },
+    "done": true
+  },
   "DataVersion": 4440
 }

@@ -1,6 +1,8 @@
-[01:56:28] [main/WARN] (FabricLoader/Knot) Class path entries reference missing files: /home/matt/IdeaProjects/matt_mods/build/classes/java/main - the game may not load properly!
-[01:56:28] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 1.21.8 with Fabric Loader 0.17.2
-[01:56:28] [main/INFO] (FabricLoader) Loading 43 mods:
+[01:43:19] [main/WARN] (FabricLoader/Knot) Class path entries reference missing files: /home/matt/IdeaProjects/matt_mods/build/classes/java/main - the game may not load properly!
+[01:43:19] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 1.21.8 with Fabric Loader 0.17.2
+[01:43:19] [main/INFO] (FabricLoader) Loading 56 mods:
+	- cardinal-components-base 7.0.0-beta.1
+	- cardinal-components-entity 7.0.0-beta.1
 	- fabric-api 0.134.0+1.21.8
 	- fabric-api-base 0.5.0+cd8c0daa2c
 	- fabric-api-lookup-api-v1 1.6.101+946bf4c32c
@@ -44,38 +46,39 @@
 	- matt_mods 1.0-SNAPSHOT
 	- minecraft 1.21.8
 	- mixinextras 0.5.0
-[01:56:29] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/matt/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.16.3+mixin.0.8.7/3e535042688d1265447e52ad86950b7d9678a5fa/sponge-mixin-0.16.3+mixin.0.8.7.jar Service=Knot/Fabric Env=SERVER
-[01:56:29] [main/INFO] (FabricLoader/Mixin) Loaded Fabric development mappings for mixin remapper!
-[01:56:29] [main/INFO] (FabricLoader/Mixin) Compatibility level set to JAVA_21
-[01:56:29] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.0).
-[01:56:33] [main/INFO] (Minecraft) Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
-[01:56:34] [main/INFO] (Minecraft) Loaded 1407 recipes
-[01:56:34] [main/INFO] (Minecraft) Loaded 1520 advancements
-[01:56:34] [main/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 65 new biomes in 854.7 μs
-[01:56:34] [Server thread/INFO] (Minecraft) Starting minecraft server version 1.21.8
-[01:56:34] [Server thread/INFO] (Minecraft) Loading properties
-[01:56:34] [Server thread/INFO] (Minecraft) Default game type: SURVIVAL
-[01:56:34] [Server thread/INFO] (Minecraft) Generating keypair
-[01:56:34] [Server thread/INFO] (Minecraft) Starting Minecraft server on *:25565
-[01:56:34] [Server thread/INFO] (Minecraft) Using epoll channel type
-[01:56:34] [Server thread/INFO] (Minecraft) Preparing level "world"
-[01:56:35] [Server thread/INFO] (Minecraft) Preparing start region for dimension minecraft:overworld
-[01:56:36] [Worker-Main-8/INFO] (Minecraft) Preparing spawn area: 0%
-[01:56:36] [Worker-Main-8/INFO] (Minecraft) Preparing spawn area: 0%
-[01:56:36] [Worker-Main-8/INFO] (Minecraft) Preparing spawn area: 0%
-[01:56:36] [Server thread/INFO] (Minecraft) Time elapsed: 1120 ms
-[01:56:36] [Server thread/INFO] (Minecraft) Done (1.345s)! For help, type "help"
-[01:56:41] [User Authenticator #1/INFO] (Minecraft) UUID of player Matt_Lawliet is c8df6663-1bf2-4076-a7bf-7423c23a31bd
-[01:56:41] [Server thread/INFO] (Minecraft) Matt_Lawliet[/127.0.0.1:33868] logged in with entity id 49 at (172.7985135877165, 68.0, 508.64516827958965)
-[01:56:41] [Server thread/INFO] (Minecraft) Matt_Lawliet joined the game
-[01:56:50] [Server thread/WARN] (Minecraft) Can't keep up! Is the server overloaded? Running 3487ms or 69 ticks behind
-[01:56:51] [Server thread/INFO] (Minecraft) Matt_Lawliet lost connection: Disconnected
-[01:56:51] [Server thread/INFO] (Minecraft) Matt_Lawliet left the game
-[01:57:47] [User Authenticator #2/INFO] (Minecraft) UUID of player Matt_Lawliet is c8df6663-1bf2-4076-a7bf-7423c23a31bd
-[01:57:47] [Server thread/INFO] (Minecraft) Matt_Lawliet[/127.0.0.1:33652] logged in with entity id 231 at (172.7985135877165, 68.0, 508.64516827958965)
-[01:57:47] [Server thread/INFO] (Minecraft) Matt_Lawliet joined the game
-[01:58:42] [Server thread/INFO] (Minecraft) Matt_Lawliet lost connection: Disconnected
-[01:58:42] [Server thread/INFO] (Minecraft) Matt_Lawliet left the game
-[01:58:51] [Server thread/INFO] (Minecraft) Stopping server
-[01:58:51] [Server thread/INFO] (Minecraft) Saving players
-[01:58:51] [Server thread/INFO] (Minecraft) Saving worlds
+	- packet_tweaker 0.6.0-pre.1+1.21.2-pre3
+	- player-data-api 0.8.0+1.21.6
+	- polymer-common 0.13.1+1.21.6
+	- polymer-core 0.13.1+1.21.6
+	- polymer-networking 0.13.1+1.21.6
+	- polymer-registry-sync-manipulator 0.13.1+1.21.6
+	- polymer-resource-pack 0.13.1+1.21.6
+	- polymer-resource-pack-extras 0.13.1+1.21.6
+	- server_translations_api 2.5.1+1.21.5
+	- sgui 1.10.0+1.21.6
+	- trinkets 3.11.0-beta.1+polymerport.2
+[01:43:19] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/matt/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.16.3+mixin.0.8.7/3e535042688d1265447e52ad86950b7d9678a5fa/sponge-mixin-0.16.3+mixin.0.8.7.jar Service=Knot/Fabric Env=SERVER
+[01:43:19] [main/INFO] (FabricLoader/Mixin) Loaded Fabric development mappings for mixin remapper!
+[01:43:19] [main/INFO] (FabricLoader/Mixin) Compatibility level set to JAVA_21
+[01:43:20] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.0).
+[01:43:24] [main/INFO] (Minecraft) Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[01:43:25] [main/INFO] (Minecraft) Found new data pack server_translations_api, loading it automatically
+[01:43:25] [main/INFO] (Minecraft) Found new data pack trinkets, loading it automatically
+[01:43:26] [main/INFO] (Minecraft) Loaded 1407 recipes
+[01:43:26] [main/INFO] (Minecraft) Loaded 1520 advancements
+[01:43:26] [ForkJoinPool.commonPool-worker-1/INFO] (ServerTranslations) Loaded 22 translation keys
+[01:43:26] [main/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 65 new biomes in 888.0 μs
+[01:43:26] [Server thread/INFO] (Minecraft) Starting minecraft server version 1.21.8
+[01:43:26] [Server thread/INFO] (Minecraft) Loading properties
+[01:43:26] [Server thread/INFO] (Minecraft) Default game type: SURVIVAL
+[01:43:26] [Server thread/INFO] (Minecraft) Generating keypair
+[01:43:26] [Server thread/INFO] (Minecraft) Starting Minecraft server on *:25565
+[01:43:26] [Server thread/INFO] (Minecraft) Using epoll channel type
+[01:43:26] [Server thread/INFO] (Minecraft) Preparing level "world"
+[01:43:26] [Server thread/INFO] (Minecraft) Preparing start region for dimension minecraft:overworld
+[01:43:28] [Worker-Main-7/INFO] (Minecraft) Preparing spawn area: 0%
+[01:43:28] [Worker-Main-7/INFO] (Minecraft) Preparing spawn area: 0%
+[01:43:28] [Worker-Main-7/INFO] (Minecraft) Preparing spawn area: 0%
+[01:43:28] [Worker-Main-7/INFO] (Minecraft) Preparing spawn area: 0%
+[01:43:28] [Server thread/INFO] (Minecraft) Time elapsed: 1929 ms
+[01:43:28] [Server thread/INFO] (Minecraft) Done (2.190s)! For help, type "help"

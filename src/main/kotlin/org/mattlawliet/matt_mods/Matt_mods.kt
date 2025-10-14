@@ -3,6 +3,7 @@ package org.mattlawliet.matt_mods
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
@@ -10,17 +11,56 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.Text
+import net.minecraft.server.network.ServerPlayerEntity
 import java.io.File
 import java.nio.file.Path
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
+//import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
+//import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents
+//import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents
+import net.minecraft.util.ActionResult
+import net.fabricmc.fabric.api.event.player.UseBlockCallback
+import net.minecraft.block.BedBlock
+
+
 
 class Matt_mods : ModInitializer {
 
+    private val backupCooldowns = mutableMapOf<String, Long>()
+    private val COOLDOWN_TIME = 5000L // 5 seconds in milliseconds
+
     override fun onInitialize() {
-        Companion.loadBranches()
-        Companion.loadPlayerData()
+        loadBranches()
+        loadPlayerData()
+
+        // Bed right-click backup with cooldown
+        UseBlockCallback.EVENT.register { player, world, hand, hitResult ->
+            val blockState = world.getBlockState(hitResult.blockPos)
+
+            if (blockState.block is BedBlock && player is ServerPlayerEntity && !world.isClient) {
+                val uuid = player.uuidAsString
+                val currentTime = System.currentTimeMillis()
+                val lastBackupTime = backupCooldowns[uuid]
+
+                if (lastBackupTime == null || currentTime - lastBackupTime > COOLDOWN_TIME) {
+                    try {
+                        val backup = InventorySafe.createBackup(player)
+                        player.sendMessage(Text.of("§6Inventory snapshot saved!"), false)
+                        backupCooldowns[uuid] = currentTime
+                        println("Bed-click backup created for ${player.name.string}")
+                    } catch (e: Exception) {
+                        player.sendMessage(Text.of("§cFailed to create backup!"), false)
+                        println("Failed to create bed-click backup: ${e.message}")
+                    }
+                } else {
+                    val timeLeft = (COOLDOWN_TIME - (currentTime - lastBackupTime)) / 1000
+                    player.sendMessage(Text.of("§cPlease wait ${timeLeft}s before creating another backup"), false)
+                }
+            }
+            ActionResult.PASS
+        }
 
         // Prompt player on join if there are new changes
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ ->
@@ -37,12 +77,12 @@ class Matt_mods : ModInitializer {
             }
 
             // Parse their last seen timestamp
-            val lastSeenTime = java.time.LocalDateTime.parse(lastSeen, java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            val lastSeenTime = java.time.LocalDateTime.parse(lastSeen, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
             // Check if any branches have changes after their last seen time
             val branchesWithNewChanges = branches.filter { (_, changeList) ->
                 changeList.any { change ->
-                    java.time.LocalDateTime.parse(change.timestamp, java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isAfter(lastSeenTime)
+                    java.time.LocalDateTime.parse(change.timestamp, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isAfter(lastSeenTime)
                 }
             }
 
@@ -60,6 +100,7 @@ class Matt_mods : ModInitializer {
         }
 
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
+            // Original changes command
             dispatcher.register(
                 CommandManager.literal("changes")
                     .executes {
@@ -123,7 +164,89 @@ class Matt_mods : ModInitializer {
                     )
             )
 
+            // Death backup command
+            dispatcher.register(
+                CommandManager.literal("deathbackup")
+                    .executes { ctx ->
+                        ctx.source.sendFeedback({
+                            Text.of(
+                                """
+                                §6Death Backup Commands:
+                                §e/deathbackup list§7 - List your death backups
+                                §e/deathbackup load <index>§7 - Load a specific backup
+                                §e/deathbackup help§7 - Show this help
+                                """.trimIndent()
+                            )
+                        }, false)
+                        1
+                    }
+                    .then(CommandManager.literal("list")
+                        .executes { ctx ->
+                            val player = ctx.source.playerOrThrow
+                            val backups = InventorySafe.listBackups(player)
 
+                            if (backups.isEmpty()) {
+                                ctx.source.sendFeedback({ Text.of("§7No death backups found.") }, false)
+                            } else {
+                                ctx.source.sendFeedback({ Text.of("§6Your Death Backups:") }, false)
+                                backups.forEach { (index, backup) ->
+                                    val itemCount = backup.items.size
+                                    ctx.source.sendFeedback({
+                                        Text.of("§7${index}. §f${backup.timestamp} §7(§f${itemCount} items§7, §f${backup.experience} levels§7)")
+                                    }, false)
+                                }
+                                ctx.source.sendFeedback({
+                                    Text.of("§7Use §e/deathbackup load <index>§7 to restore a backup.")
+                                }, false)
+                            }
+                            1
+                        }
+                    )
+                    .then(CommandManager.literal("load")
+                        .then(CommandManager.argument("index", IntegerArgumentType.integer(0))
+                            .executes { ctx ->
+                                val player = ctx.source.playerOrThrow
+                                val index = IntegerArgumentType.getInteger(ctx, "index")
+
+                                if (InventorySafe.loadBackup(player, index)) {
+                                    ctx.source.sendFeedback({
+                                        Text.of("§aSuccessfully loaded death backup #$index!")
+                                    }, false)
+
+                                    // Update the backup list after loading
+                                    val remaining = InventorySafe.getBackupCount(player)
+                                    if (remaining > 0) {
+                                        ctx.source.sendFeedback({
+                                            Text.of("§7You have §f$remaining§7 backup(s) remaining.")
+                                        }, false)
+                                    }
+                                } else {
+                                    ctx.source.sendFeedback({
+                                        Text.of("§cFailed to load backup #$index. It may not exist.")
+                                    }, false)
+                                }
+                                1
+                            }
+                        )
+                    )
+                    .then(CommandManager.literal("help")
+                        .executes { ctx ->
+                            ctx.source.sendFeedback({
+                                Text.of(
+                                    """
+                                    §6Death Backup Help:
+                                    §7This mod automatically saves your inventory when you die.
+                                    §7Use §e/deathbackup list§7 to see your saved backups.
+                                    §7Use §e/deathbackup load <index>§7 to restore a backup.
+                                    §7Index §e0§7 is always your most recent death.
+                                    §7Backups are automatically deleted after loading.
+                                    """.trimIndent()
+                                )
+                            }, false)
+                            1
+                        }
+                    )
+            )
         }
     }
 
@@ -141,7 +264,7 @@ class Matt_mods : ModInitializer {
 
         private fun addChange(ctx: CommandContext<ServerCommandSource>, critical: Boolean = false): Int {
             val text = StringArgumentType.getString(ctx, "text")
-            val timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            val timestamp = java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
             val change = Change(text, timestamp, critical)
             branches[latestBranch]?.add(change)
             saveBranches()
@@ -149,7 +272,6 @@ class Matt_mods : ModInitializer {
             ctx.source.sendFeedback({ Text.of("Added to $latestBranch$criticalTag: $text") }, false)
             return 1
         }
-
 
         private fun newBranch(ctx: CommandContext<ServerCommandSource>): Int {
             val latestList = branches[latestBranch] ?: mutableListOf()
@@ -204,12 +326,12 @@ class Matt_mods : ModInitializer {
                 return 0
             }
 
-            val lastSeenTime = java.time.LocalDateTime.parse(lastSeen, java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            val lastSeenTime = java.time.LocalDateTime.parse(lastSeen, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
             // Find branches with changes newer than last seen
             val branchesWithNewChanges = branches.filter { (_, changeList) ->
                 changeList.any { change ->
-                    val changeTime = java.time.LocalDateTime.parse(change.timestamp, java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                    val changeTime = java.time.LocalDateTime.parse(change.timestamp, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                     changeTime.isAfter(lastSeenTime)
                 }
             }
@@ -222,7 +344,7 @@ class Matt_mods : ModInitializer {
             ctx.source.sendFeedback({ Text.of("Branches with new changes since last check:") }, false)
             branchesWithNewChanges.forEach { (branchName, changes) ->
                 val newChangesCount = changes.count { change ->
-                    val changeTime = java.time.LocalDateTime.parse(change.timestamp, java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                    val changeTime = java.time.LocalDateTime.parse(change.timestamp, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                     changeTime.isAfter(lastSeenTime)
                 }
                 ctx.source.sendFeedback({ Text.of("- $branchName ($newChangesCount new change${if(newChangesCount == 1) "" else "s"})") }, false)
@@ -290,9 +412,11 @@ class Matt_mods : ModInitializer {
             val source = ctx.source
             if (source.entity == null) return  // console, skip
             val uuid = source.playerOrThrow.uuidAsString
-            val now = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            val now = java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
             playerLastSeen[uuid] = now
             savePlayerData()
         }
+
+        private val playersWithBackup = mutableSetOf<String>()
     }
 }

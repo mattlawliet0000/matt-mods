@@ -188,6 +188,7 @@ class Matt_mods : ModInitializer {
                         }, false)
                         1
                     }
+                    //testCommit
                     .then(CommandManager.literal("list")
                         .executes { ctx ->
                             val player = ctx.source.playerOrThrow

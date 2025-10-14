@@ -5,6 +5,9 @@ import com.google.gson.reflect.TypeToken
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.suggestion.SuggestionProvider
+import com.mojang.brigadier.suggestion.Suggestions
+import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -23,7 +26,9 @@ import java.util.concurrent.ConcurrentHashMap
 import net.minecraft.util.ActionResult
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.block.BedBlock
-
+import net.minecraft.command.CommandSource
+import net.minecraft.command.argument.EntityArgumentType
+import java.util.concurrent.CompletableFuture
 
 
 class Matt_mods : ModInitializer {
@@ -47,16 +52,18 @@ class Matt_mods : ModInitializer {
                 if (lastBackupTime == null || currentTime - lastBackupTime > COOLDOWN_TIME) {
                     try {
                         val backup = InventorySafe.createBackup(player)
-                        player.sendMessage(Text.of("§6Inventory snapshot saved!"), false)
-                        backupCooldowns[uuid] = currentTime
-                        println("Bed-click backup created for ${player.name.string}")
+                        if (backup != null){
+                            player.sendMessage(Text.of("§6Inventory snapshot saved!"), false)
+                            backupCooldowns[uuid] = currentTime
+                            println("Bed-click backup created for ${player.name.string}")
+                        }
                     } catch (e: Exception) {
                         player.sendMessage(Text.of("§cFailed to create backup!"), false)
                         println("Failed to create bed-click backup: ${e.message}")
                     }
                 } else {
-                    val timeLeft = (COOLDOWN_TIME - (currentTime - lastBackupTime)) / 1000
-                    player.sendMessage(Text.of("§cPlease wait ${timeLeft}s before creating another backup"), false)
+                    //val timeLeft = (COOLDOWN_TIME - (currentTime - lastBackupTime)) / 1000
+                    //player.sendMessage(Text.of("§cPlease wait ${timeLeft}s before creating another backup"), false)
                 }
             }
             ActionResult.PASS
@@ -166,16 +173,16 @@ class Matt_mods : ModInitializer {
 
             // Death backup command
             dispatcher.register(
-                CommandManager.literal("deathbackup")
+                CommandManager.literal("invbackup")
                     .requires { source -> source.hasPermissionLevel(2) }
                     .executes { ctx ->
                         ctx.source.sendFeedback({
                             Text.of(
                                 """
                                 §6Death Backup Commands:
-                                §e/deathbackup list§7 - List your death backups
-                                §e/deathbackup load <index>§7 - Load a specific backup
-                                §e/deathbackup help§7 - Show this help
+                                §e/invbackup list§7 - List your death backups
+                                §e/invbackup load <index>§7 - Load a specific backup
+                                §e/invbackup help§7 - Show this help
                                 """.trimIndent()
                             )
                         }, false)
@@ -191,17 +198,46 @@ class Matt_mods : ModInitializer {
                             } else {
                                 ctx.source.sendFeedback({ Text.of("§6Your Death Backups:") }, false)
                                 backups.forEach { (index, backup) ->
-                                    val itemCount = backup.items.size
+                                    val mainItemCount = backup.items.size
+                                    val trinketItemCount = backup.trinketItems.size
+                                    val totalItemCount = mainItemCount + trinketItemCount
+
                                     ctx.source.sendFeedback({
-                                        Text.of("§7${index}. §f${backup.timestamp} §7(§f${itemCount} items§7, §f${backup.experience} levels§7)")
+                                        Text.of("§7${index}. §f${backup.timestamp} §7(§f${totalItemCount} items§7 [§f${mainItemCount} inv + §f${trinketItemCount} trinkets§7], §f${backup.experience} levels§7)")
                                     }, false)
                                 }
                                 ctx.source.sendFeedback({
-                                    Text.of("§7Use §e/deathbackup load <index>§7 to restore a backup.")
+                                    Text.of("§7Use §e/invbackup load <index>§7 to restore a backup.")
                                 }, false)
                             }
                             1
                         }
+                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                            .suggests(PlayerSuggestionProvider) // Add this line to provide suggestions
+                            .executes { ctx -> // List backups for specified player
+                                val targetPlayer = EntityArgumentType.getPlayer(ctx, "player")
+                                val backups = InventorySafe.listBackups(targetPlayer)
+
+                                if (backups.isEmpty()) {
+                                    ctx.source.sendFeedback({ Text.of("§7No death backups found for ${targetPlayer.name.string}.") }, false)
+                                } else {
+                                    ctx.source.sendFeedback({ Text.of("§6Death Backups for ${targetPlayer.name.string}:") }, false)
+                                    backups.forEach { (index, backup) ->
+                                        val mainItemCount = backup.items.size
+                                        val trinketItemCount = backup.trinketItems.size
+                                        val totalItemCount = mainItemCount + trinketItemCount
+
+                                        ctx.source.sendFeedback({
+                                            Text.of("§7${index}. §f${backup.timestamp} §7(§f${totalItemCount} items§7 [§f${mainItemCount} inv + §f${trinketItemCount} trinkets§7], §f${backup.experience} levels§7)")
+                                        }, false)
+                                    }
+                                    ctx.source.sendFeedback({
+                                        Text.of("§7Use §e/invbackup load <index> ${targetPlayer.name.string}§7 to restore a backup.")
+                                    }, false)
+                                }
+                                1
+                            }
+                        )
                     )
                     .then(CommandManager.literal("load")
                         .then(CommandManager.argument("index", IntegerArgumentType.integer(0))
@@ -238,8 +274,8 @@ class Matt_mods : ModInitializer {
                                     """
                                     §6Death Backup Help:
                                     §7This mod automatically saves your inventory when you die.
-                                    §7Use §e/deathbackup list§7 to see your saved backups.
-                                    §7Use §e/deathbackup load <index>§7 to restore a backup.
+                                    §7Use §e/invbackup list§7 to see your saved backups.
+                                    §7Use §e/invbackup load <index>§7 to restore a backup.
                                     §7Index §e0§7 is always your most recent death.
                                     §7Backups are automatically deleted after loading.
                                     """.trimIndent()
@@ -420,5 +456,16 @@ class Matt_mods : ModInitializer {
         }
 
         private val playersWithBackup = mutableSetOf<String>()
+    }
+
+    object PlayerSuggestionProvider : SuggestionProvider<ServerCommandSource> {
+        override fun getSuggestions(
+            context: CommandContext<ServerCommandSource>,
+            builder: SuggestionsBuilder
+        ): CompletableFuture<Suggestions> {
+            // Get all online player names and suggest them
+            val playerNames = context.source.server.playerNames
+            return CommandSource.suggestMatching(playerNames, builder)
+        }
     }
 }

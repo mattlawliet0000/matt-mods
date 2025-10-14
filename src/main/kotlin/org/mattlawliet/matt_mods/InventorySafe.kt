@@ -5,14 +5,14 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.registry.entry.RegistryEntry
+//import net.minecraft.registry.RegistryKeys
+//import net.minecraft.registry.entry.RegistryEntry
+//import net.minecraft.registry.RegistryWrapper
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.NbtElement
-import net.minecraft.registry.RegistryWrapper
 import dev.emi.trinkets.api.TrinketsApi
 
 import net.minecraft.registry.Registries
@@ -21,6 +21,16 @@ object InventorySafe {
     private val gson = Gson()
     private val configFolder = File("config/matt_mods").apply { mkdirs() }
     private val backupDir = File(configFolder, "death_backups").apply { mkdirs() }
+    private const val MAX_BACKUPS = 5
+
+    private fun getPlayerBackupDir(player: ServerPlayerEntity): File {
+        return File(backupDir, player.uuidAsString).apply { mkdirs() }
+    }
+
+    private fun getBackupFiles(player: ServerPlayerEntity): List<File> {
+        val playerDir = getPlayerBackupDir(player)
+        return playerDir.listFiles { file -> file.name.endsWith(".json") }?.toList() ?: emptyList()
+    }
 
     data class DeathBackup(
         val timestamp: String,
@@ -44,15 +54,21 @@ object InventorySafe {
         val z: Double
     )
 
-    fun createBackup(player: ServerPlayerEntity): DeathBackup {
+    fun createBackup(player: ServerPlayerEntity): DeathBackup? {
         val inventory = player.inventory
         val items = mutableListOf<ItemStackSnapshot>()
         val trinketItems = mutableListOf<ItemStackSnapshot>()
 
-        // Save all main inventory slots (including armor and offhand)
+        var hasItems = false
+        var totalItemCount = 0
+
+        // Save all inventory slots (including armor and offhand)
         for (i in 0 until inventory.size()) {
             val stack = inventory.getStack(i)
             if (!stack.isEmpty) {
+                hasItems = true
+                totalItemCount += stack.count
+
                 val nbtResult = ItemStack.CODEC.encodeStart<NbtElement>(NbtOps.INSTANCE, stack)
 
                 val nbtString = if (nbtResult.isSuccess) {
@@ -78,6 +94,9 @@ object InventorySafe {
                     val slotReference = pair.left
                     val stack = pair.right
                     if (!stack.isEmpty) {
+                        hasItems = true
+                        totalItemCount += stack.count
+
                         val nbtResult = ItemStack.CODEC.encodeStart<NbtElement>(NbtOps.INSTANCE, stack)
 
                         val nbtString = if (nbtResult.isSuccess) {
@@ -100,10 +119,21 @@ object InventorySafe {
             println("Failed to save trinkets: ${e.message}")
         }
 
+        // Don't save if inventory is completely empty (no items and no experience)
+        if (!hasItems && player.experienceLevel == 0) {
+            return null
+        }
+
+        // Check for duplicates by comparing with latest backup
+        if (isDuplicateBackup(player, items, trinketItems, player.experienceLevel)) {
+            println("Skipping duplicate backup for ${player.name.string}")
+            return null
+        }
+
         val deathBackup = DeathBackup(
             timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
             items = items,
-            trinketItems = trinketItems, // Add trinket items to backup
+            trinketItems = trinketItems,
             experience = player.experienceLevel,
             deathLocation = DeathLocation(
                 dimension = player.world.registryKey.value.toString(),
@@ -114,13 +144,94 @@ object InventorySafe {
         )
 
         saveBackup(player, deathBackup)
+
+        // Enforce 5 backup limit
+        enforceBackupLimit(player)
+
         return deathBackup
     }
 
+    private fun isDuplicateBackup(player: ServerPlayerEntity, newItems: List<ItemStackSnapshot>, newTrinkets: List<ItemStackSnapshot>, newExperience: Int): Boolean {
+        val backups = listBackups(player)
+        if (backups.isEmpty()) return false
+
+        // Get the most recent backup (first in the reversed list)
+        val latestBackup = backups.first().second
+
+        // Compare all relevant data
+        return latestBackup.items.size == newItems.size &&
+                latestBackup.trinketItems.size == newTrinkets.size &&
+                latestBackup.experience == newExperience &&
+                // Simple content check - compare total item counts
+                latestBackup.items.sumOf { it.count } == newItems.sumOf { it.count } &&
+                latestBackup.trinketItems.sumOf { it.count } == newTrinkets.sumOf { it.count }
+    }
+
+    private fun enforceBackupLimit(player: ServerPlayerEntity) {
+        val backupFiles = getBackupFiles(player)
+
+        if (backupFiles.size > MAX_BACKUPS) {
+            // Sort by modification time (oldest first) and remove excess
+            val filesToDelete = backupFiles.sortedBy { it.lastModified() }
+                .take(backupFiles.size - MAX_BACKUPS)
+
+            filesToDelete.forEach { file ->
+                if (file.delete()) {
+                    println("Deleted old backup: ${file.name}")
+                } else {
+                    println("Failed to delete old backup: ${file.name}")
+                }
+            }
+
+            println("Enforced backup limit for ${player.name.string}: deleted ${filesToDelete.size}, kept $MAX_BACKUPS")
+        }
+    }
+
+    fun deleteBackup(player: ServerPlayerEntity, index: Int): Boolean {
+        val backups = listBackups(player)
+        if (index < 0 || index >= backups.size) {
+            return false
+        }
+
+        // Implementation depends on how you're storing backups
+        // If using files, delete the file at that index
+        // If using memory, remove from collection and resave
+
+        // Example for file-based storage:
+        val backupFile = getBackupFile(player, index)
+        return try {
+            if (backupFile.exists()) {
+                backupFile.delete()
+                true
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            println("Failed to delete backup #$index for ${player.name.string}: ${e.message}")
+            false
+        }
+    }
+
+    private fun getBackupFile(player: ServerPlayerEntity, index: Int): File {
+        val backupDir = File("backups/${player.uuid}")
+        backupDir.mkdirs()
+        return File(backupDir, "backup_$index.json")
+    }
+
     private fun saveBackup(player: ServerPlayerEntity, backup: DeathBackup) {
-        val playerDir = File(backupDir, player.uuidAsString).apply { mkdirs() }
-        val backupFile = File(playerDir, "${System.currentTimeMillis()}.json")
-        backupFile.writeText(gson.toJson(backup))
+        try {
+            val playerDir = getPlayerBackupDir(player)
+            val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+            val backupFile = File(playerDir, "backup_$timestamp.json")
+
+            backupFile.writeText(gson.toJson(backup))
+            println("Backup saved for ${player.name.string}: ${backupFile.name}")
+
+            // Enforce limit after saving
+            enforceBackupLimit(player)
+        } catch (e: Exception) {
+            println("Failed to save backup for ${player.name.string}: ${e.message}")
+        }
     }
 
 
@@ -143,7 +254,7 @@ object InventorySafe {
                 // Clear existing trinkets
                 component.allEquipped.forEach { pair ->
                     val slotReference = pair.left
-                    val _value = pair.right
+                    //val _value = pair.right
                     slotReference.inventory.setStack(slotReference.index, ItemStack.EMPTY)
                 }
 
@@ -232,20 +343,26 @@ object InventorySafe {
     }
 
     fun listBackups(player: ServerPlayerEntity): List<Pair<Int, DeathBackup>> {
-        val playerDir = File(backupDir, player.uuidAsString)
-        if (!playerDir.exists()) return emptyList()
+        val backupFiles = getBackupFiles(player)
 
-        return playerDir.listFiles { file -> file.extension == "json" }
-            ?.sortedBy { it.nameWithoutExtension.toLongOrNull() }
-            ?.reversed()
-            ?.mapIndexed { index, file ->
-                val backup = gson.fromJson(file.readText(), DeathBackup::class.java)
-                index to backup
-            } ?: emptyList()
+        // Sort by modification time (oldest first) and take only MAX_BACKUPS for display
+        return backupFiles.sortedBy { it.lastModified() }
+            .takeLast(MAX_BACKUPS) // Only show the most recent MAX_BACKUPS
+            .mapIndexed { index, file ->
+                try {
+                    val backup = gson.fromJson(file.readText(), DeathBackup::class.java)
+                    index to backup
+                } catch (e: Exception) {
+                    println("Failed to read backup file ${file.name}: ${e.message}")
+                    null
+                }
+            }
+            .filterNotNull()
+            .reversed() // Show newest first in the list
     }
 
     fun getBackupCount(player: ServerPlayerEntity): Int {
-        return listBackups(player).size
+        return getBackupFiles(player).size
     }
 
     fun hasBackups(player: ServerPlayerEntity): Boolean {

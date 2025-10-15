@@ -1,6 +1,7 @@
 # matt-mods
 
-A collection of mods for Minecraft Fabric.
+A collection of features for Minecraft Fabric 1.21.8.
+
 The current features are:
 - Changelog command **/changes**
 - Inventory backup command **/invbackup**

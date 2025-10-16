@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap
 import net.minecraft.util.ActionResult
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.minecraft.block.BedBlock
+//import net.minecraft.command.ArgumentGetter
 import net.minecraft.command.CommandSource
 import net.minecraft.command.argument.EntityArgumentType
 import java.util.concurrent.CompletableFuture
@@ -179,50 +180,86 @@ class Matt_mods : ModInitializer {
                         ctx.source.sendFeedback({
                             Text.of(
                                 """
-                                §6Death Backup Commands:
-                                §e/invbackup list§7 - List your death backups
-                                §e/invbackup load <index>§7 - Load a specific backup
-                                §e/invbackup help§7 - Show this help
+                                §6For help type:
+                                §e/invbackup help
                                 """.trimIndent()
                             )
                         }, false)
                         1
                     }
                     //testCommit
-                    .then(CommandManager.literal("list")
+                    .then(CommandManager.literal("deleteBackup")
                         .executes { ctx ->
-                            val player = ctx.source.playerOrThrow
-                            val backups = InventorySafe.listBackups(player)
-
-                            if (backups.isEmpty()) {
-                                ctx.source.sendFeedback({ Text.of("§7No death backups found.") }, false)
-                            } else {
-                                ctx.source.sendFeedback({ Text.of("§6Your Death Backups:") }, false)
-                                backups.forEach { (index, backup) ->
-                                    val mainItemCount = backup.items.size
-                                    val trinketItemCount = backup.trinketItems.size
-                                    val totalItemCount = mainItemCount + trinketItemCount
-
-                                    ctx.source.sendFeedback({
-                                        Text.of("§7${index}. §f${backup.timestamp} §7(§f${totalItemCount} items§7 [§f${mainItemCount} inv + §f${trinketItemCount} trinkets§7], §f${backup.experience} levels§7)")
-                                    }, false)
-                                }
-                                ctx.source.sendFeedback({
-                                    Text.of("§7Use §e/invbackup load <index>§7 to restore a backup.")
-                                }, false)
-                            }
+                            ctx.source.sendFeedback({
+                                Text.of(
+                                    """
+                                §6Delete backup requires a player and index:
+                                §e/invbackup deleteBackup <player> <index>
+                                """.trimIndent()
+                                )
+                            }, false)
                             1
                         }
                         .then(CommandManager.argument("player", EntityArgumentType.player())
-                            .suggests(PlayerSuggestionProvider) // Add this line to provide suggestions
-                            .executes { ctx -> // List backups for specified player
-                                val targetPlayer = EntityArgumentType.getPlayer(ctx, "player")
-                                val backups = InventorySafe.listBackups(targetPlayer)
+                            .suggests(PlayerSuggestionProvider)
+                            .executes { ctx ->
+                                ctx.source.sendFeedback({
+                                    Text.of(
+                                        """
+                                §6Delete backup requires a player and index:
+                                §e/invbackup deleteBackup <player> <index>
+                                """.trimIndent()
+                                    )
+                                }, false)
+                                1
+                            }
+                            .then(CommandManager.argument("index", IntegerArgumentType.integer(0))
+                                .suggests(BackupIndexSuggestionProvider)
+                                .executes { ctx ->
+                                    val targetPlayer = EntityArgumentType.getPlayer(ctx, "player")
+                                    val index = IntegerArgumentType.getInteger(ctx, "index")
+
+                                    if (InventorySafe.deleteBackup(targetPlayer, index)) {
+                                        ctx.source.sendFeedback({
+                                            Text.of("§aSuccessfully deleted backup #$index for ${targetPlayer.name.string}!")
+                                        }, false)
+
+                                        val remaining = InventorySafe.getBackupCount(targetPlayer)
+                                        ctx.source.sendFeedback({
+                                            Text.of("§7${targetPlayer.name.string} has §f$remaining§7 backup(s) remaining.")
+                                        }, false)
+                                    } else {
+                                        ctx.source.sendFeedback({
+                                            Text.of("§cFailed to delete backup #$index for ${targetPlayer.name.string}. It may not exist.")
+                                        }, false)
+                                    }
+                                    1
+                                }
+                            )
+                        )
+                    )
+                    .then(CommandManager.literal("list")
+                        .executes { ctx ->
+                            ctx.source.sendFeedback({
+                                Text.of(
+                                    """
+                                §6Backup list requires a player:
+                                §e/invbackup list <player>
+                                """.trimIndent()
+                                )
+                            }, false)
+                            1
+                        }
+                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                            .suggests(PlayerSuggestionProvider)
+                            .executes { ctx ->
+                                val player = ctx.source.playerOrThrow
+                                val backups = InventorySafe.listBackups(player)
 
                                 if (backups.isEmpty()) {
-                                    ctx.source.sendFeedback({ Text.of("§7No death backups found for ${targetPlayer.name.string}.") }, false)
+                                    ctx.source.sendFeedback({ Text.of("§7No death backups found.") }, false)
                                 } else {
-                                    ctx.source.sendFeedback({ Text.of("§6Death Backups for ${targetPlayer.name.string}:") }, false)
+                                    ctx.source.sendFeedback({ Text.of("§6Your Death Backups:") }, false)
                                     backups.forEach { (index, backup) ->
                                         val mainItemCount = backup.items.size
                                         val trinketItemCount = backup.trinketItems.size
@@ -233,39 +270,64 @@ class Matt_mods : ModInitializer {
                                         }, false)
                                     }
                                     ctx.source.sendFeedback({
-                                        Text.of("§7Use §e/invbackup load <index> ${targetPlayer.name.string}§7 to restore a backup.")
+                                        Text.of("§7Use §e/invbackup load <index>§7 to restore a backup.")
                                     }, false)
                                 }
                                 1
                             }
+
                         )
                     )
                     .then(CommandManager.literal("load")
-                        .then(CommandManager.argument("index", IntegerArgumentType.integer(0))
-
+                        .executes { ctx ->
+                            ctx.source.sendFeedback({
+                                Text.of(
+                                    """
+                                §6Load backup requires a player and index:
+                                §e/invbackup load <player> <index>
+                                """.trimIndent()
+                                )
+                            }, false)
+                            1
+                        }
+                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                            .suggests(PlayerSuggestionProvider)
                             .executes { ctx ->
-                                val player = ctx.source.playerOrThrow
-                                val index = IntegerArgumentType.getInteger(ctx, "index")
-
-                                if (InventorySafe.loadBackup(player, index)) {
-                                    ctx.source.sendFeedback({
-                                        Text.of("§aSuccessfully loaded death backup #$index!")
-                                    }, false)
-
-                                    // Update the backup list after loading
-                                    val remaining = InventorySafe.getBackupCount(player)
-                                    if (remaining > 0) {
-                                        ctx.source.sendFeedback({
-                                            Text.of("§7You have §f$remaining§7 backup(s) remaining.")
-                                        }, false)
-                                    }
-                                } else {
-                                    ctx.source.sendFeedback({
-                                        Text.of("§cFailed to load backup #$index. It may not exist.")
-                                    }, false)
-                                }
+                                ctx.source.sendFeedback({
+                                    Text.of(
+                                        """
+                                §6Load backup requires a player and index:
+                                §e/invbackup load <player> <index>
+                                """.trimIndent()
+                                    )
+                                }, false)
                                 1
                             }
+                            .then(CommandManager.argument("index", IntegerArgumentType.integer(0))
+                                .suggests(BackupIndexSuggestionProvider) // This will use the player from previous step
+                                .executes { ctx ->
+                                    val player = EntityArgumentType.getPlayer(ctx, "player")
+                                    val index = IntegerArgumentType.getInteger(ctx, "index")
+
+                                    if (InventorySafe.loadBackup(player, index)) {
+                                        ctx.source.sendFeedback({
+                                            Text.of("§aSuccessfully loaded death backup #$index for ${player.name.string}!")
+                                        }, false)
+
+                                        val remaining = InventorySafe.getBackupCount(player)
+                                        if (remaining > 0) {
+                                            ctx.source.sendFeedback({
+                                                Text.of("§7${player.name.string} has §f$remaining§7 backup(s) remaining.")
+                                            }, false)
+                                        }
+                                    } else {
+                                        ctx.source.sendFeedback({
+                                            Text.of("§cFailed to load backup #$index for ${player.name.string}. It may not exist.")
+                                        }, false)
+                                    }
+                                    1
+                                }
+                            )
                         )
                     )
                     .then(CommandManager.literal("help")
@@ -273,13 +335,19 @@ class Matt_mods : ModInitializer {
                             ctx.source.sendFeedback({
                                 Text.of(
                                     """
-                                    §6Death Backup Help:
-                                    §7This mod automatically saves your inventory when you die.
-                                    §7Use §e/invbackup list§7 to see your saved backups.
-                                    §7Use §e/invbackup load <index>§7 to restore a backup.
-                                    §7Index §e0§7 is always your most recent death.
-                                    §7Backups are automatically deleted after loading.
-                                    """.trimIndent()
+                §6Death Backup Commands (OP Only):
+                §e/invbackup list [player]§7 - List death backups (your own or specified player)
+                §e/invbackup load <player> <index>§7 - Load a backup for specified player
+                §e/invbackup deleteBackup <player> <index>§7 - Delete a specific backup
+                §e/invbackup help§7 - Show this help
+                                
+                §6Backup Information:
+                §7The highest index is always the most recent death
+                §7Only the last 5 backups are kept per player
+                §7Backups include main inventory + trinkets
+                §7If inv. of target is full and trinkets were equipped,  
+                on restore they will pop out of the player.
+                """.trimIndent()
                                 )
                             }, false)
                             1
@@ -469,4 +537,35 @@ class Matt_mods : ModInitializer {
             return CommandSource.suggestMatching(playerNames, builder)
         }
     }
+
+    // Enhanced version with filtering
+    object BackupIndexSuggestionProvider : SuggestionProvider<ServerCommandSource> {
+        override fun getSuggestions(
+            context: CommandContext<ServerCommandSource>,
+            builder: SuggestionsBuilder
+        ): CompletableFuture<Suggestions> {
+            return try {
+                val targetPlayer = EntityArgumentType.getPlayer(context, "player")
+                val backups = InventorySafe.listBackups(targetPlayer)
+
+                backups.forEach { (index, backup) ->
+                    val currentInput = builder.remaining.lowercase()
+                    val indexStr = index.toString()
+
+                    // Only suggest if index matches what user is typing
+                    if (indexStr.startsWith(currentInput)) {
+                        val itemCount = backup.items.size + backup.trinketItems.size
+                        val tooltipText = "§7${backup.timestamp} (§f${itemCount} items§7, §f${backup.experience} levels§7)"
+                        builder.suggest(indexStr, Text.literal(tooltipText))
+                    }
+                }
+
+                builder.buildFuture()
+            } catch (e: Exception) {
+                builder.buildFuture()
+            }
+        }
+    }
+
+
 }

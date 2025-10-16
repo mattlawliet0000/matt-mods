@@ -35,9 +35,10 @@ object InventorySafe {
     data class DeathBackup(
         val timestamp: String,
         val items: List<ItemStackSnapshot>,
-        val trinketItems: List<ItemStackSnapshot> = emptyList(), // Add this field
+        val trinketItems: List<ItemStackSnapshot>,
         val experience: Int,
-        val deathLocation: DeathLocation
+        val deathLocation: DeathLocation,
+        val filename: String = "" // Add this field
     )
 
     data class ItemStackSnapshot(
@@ -189,53 +190,25 @@ object InventorySafe {
 
     fun deleteBackup(player: ServerPlayerEntity, index: Int): Boolean {
         val backups = listBackups(player)
-        if (index < 0 || index >= backups.size) {
-            return false
-        }
+        if (index < 0 || index >= backups.size) return false
 
-        // Implementation depends on how you're storing backups
-        // If using files, delete the file at that index
-        // If using memory, remove from collection and resave
-
-        // Example for file-based storage:
-        val backupFile = getBackupFile(player, index)
-        return try {
-            if (backupFile.exists()) {
-                backupFile.delete()
-                true
-            } else {
-                false
-            }
-        } catch (e: Exception) {
-            println("Failed to delete backup #$index for ${player.name.string}: ${e.message}")
-            false
-        }
-    }
-
-    private fun getBackupFile(player: ServerPlayerEntity, index: Int): File {
-        val backupDir = File("backups/${player.uuid}")
-        backupDir.mkdirs()
-        return File(backupDir, "backup_$index.json")
+        val backup = backups[index].second
+        val backupFile = File(getPlayerBackupDir(player), backup.filename)
+        return backupFile.delete()
     }
 
     private fun saveBackup(player: ServerPlayerEntity, backup: DeathBackup) {
-        try {
-            val playerDir = getPlayerBackupDir(player)
-            val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
-            val backupFile = File(playerDir, "backup_$timestamp.json")
+        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+        val filename = "backup_$timestamp.json"
 
-            backupFile.writeText(gson.toJson(backup))
-            println("Backup saved for ${player.name.string}: ${backupFile.name}")
+        val backupWithFilename = backup.copy(filename = filename) // Store filename
 
-            // Enforce limit after saving
-            enforceBackupLimit(player)
-        } catch (e: Exception) {
-            println("Failed to save backup for ${player.name.string}: ${e.message}")
-        }
+        val backupFile = File(getPlayerBackupDir(player), filename)
+        backupFile.writeText(gson.toJson(backupWithFilename))
     }
 
 
-    fun loadBackup(player: ServerPlayerEntity, backup: DeathBackup): Boolean {
+    fun loadBackupExec(player: ServerPlayerEntity, backup: DeathBackup): Boolean {
         try {
             // Clear main inventory
             player.inventory.clear()
@@ -319,7 +292,7 @@ object InventorySafe {
         }
 
         val backup = backups[index].second
-        return loadBackup(player, backup) // Call the existing function
+        return loadBackupExec(player, backup) // Call the existing function
     }
 
     private fun decodeItemStack(snapshot: ItemStackSnapshot): ItemStack {
@@ -358,14 +331,11 @@ object InventorySafe {
                 }
             }
             .filterNotNull()
-            .reversed() // Show newest first in the list
+            //.reversed() // Show newest first in the list
     }
 
     fun getBackupCount(player: ServerPlayerEntity): Int {
         return getBackupFiles(player).size
     }
 
-    fun hasBackups(player: ServerPlayerEntity): Boolean {
-        return getBackupCount(player) > 0
-    }
 }
